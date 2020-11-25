@@ -1,0 +1,103 @@
+@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro);
+@import url(http://fonts.googleapis.com/css?family=Inconsolata);
+
+html, body {
+	background: #191919;
+	color: #cbcdcb;
+	font-size: 1em;
+	font-family: 'Source Sans Pro';
+}
+
+input[type=text]{
+	background-color: #383838;
+	font-family: 'Source Sans Pro';
+	border: 0px solid #383838;
+	color: #cbcdcb;
+	height: 30px;
+	padding-left: 3px;
+}
+
+input[type=text]:focus{
+	outline: 0;
+}
+
+p {
+	margin: 0;
+}
+
+.chat-user {
+	color: #486d9e;
+}
+
+.user-list {
+	position: fixed;
+	display: block;
+	background-color: #23344c;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	height: 100%;
+	width: 200px;
+	border-left: 5px solid #344e71;
+}
+
+.msg-container {
+	display: block;
+	padding-left: 20px;
+	padding-top: 20px;
+	top: 0;
+	left: 0;
+	bottom: 33px;
+	right: 205px;
+	position: absolute;
+	overflow: auto;
+
+}
+
+.notification {
+	color: #9dbd50;
+}
+
+#msg {
+	position: fixed;
+	display: block;
+	border-top: 1px solid #2e2e2e;
+	width: 100%;
+	bottom: 0;
+	left: 0;
+	right: 0px;
+	z-index: 0;
+}
+
+#drawButton {
+	position: fixed;
+	display: block;
+	bottom: 0;
+	right: 0;
+	z-index: 1;
+}
+
+.canvasDiv{
+	margin: 0 auto;
+	width: 600px;
+	height: 200px;
+	display: block;
+	background-color: black;
+	z-index: 100;
+}
+
+	#drawCanvas {
+		display: block;
+		width: 400px;
+		height: 200px;
+		margin: 0 auto;
+		border:1px solid #000000; 
+		background-color: #e3e3e3;
+		z-index: 101;
+	}
+
+#sendCanvas {
+	bottom: 0;
+	right: 0;
+}
+

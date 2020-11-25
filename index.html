@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+  </head>
+  <body>
+
+    <div class="wrapper">
+
+      <div class="user-list">
+        <h3 style="text-align: center; font-weight: normal;">Users in Chat</h3>
+        <ul id="people" class="unstyled"></ul>
+      </div>
+
+      <div class="msg-container" id="messages">
+        <div id="login">
+          <form class="form-inline">
+            <input type="text" class="input-small" placeholder="Enter Name..." id="name">
+          </form>
+        </div>
+      </div>
+
+      <div class="canvasDiv">
+        <canvas id="drawCanvas"> 
+          <button id="sendCanvas">Send</button>
+        </canvas>
+      </div>
+
+      <!-- <ul id="messages"></ul> -->
+      <div>
+        <div id="chat">
+          <form id="chatform" class="form-inline" action="">
+            <input id="msg" class="input" type="text" autocomplete="off" />
+          </form>
+          <button id="drawButton">Draw</button>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <script>
+      function htmlEntities(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      $(document).ready(function(){
+        var ready = false;
+        var socket = io();
+
+        $("#chat").hide();
+        $(".canvasDiv").hide();
+        $("#name").focus();
+        //prevent form from being submitted without name
+        $("form").submit(function(event){
+          event.preventDefault();
+        });
+
+        //allows entering by hitting 'Enter' for name
+        $("#name").keypress(function(e){
+          if(e.which == 13) { //if ENTER key
+            var name = $("#name").val();
+            if(name != ""){
+              socket.emit("join", name);
+              $("#login").detach();
+              $("#chat").show();
+              $("#msg").focus();
+              ready = true;
+            }
+          }
+        });
+
+        $('#chatform').submit(function(){  //when submit chat message
+          socket.emit('chat message', $('#msg').val()); //emit message + value of input
+          $('#msg').val('');  //empty field?
+          return false; //so that the page doesn't refresh
+        });
+
+        $('#drawButton').on('click', function(){
+          $('.canvasDiv').fadeIn();
+        });
+
+        //SOCKET LISTENING
+        socket.on('chat message', function(user, msg){
+          if(ready){
+            $('#messages').append("<p><strong><span class='chat-user'>" + htmlEntities(user) + " </span></strong>:  " + htmlEntities(msg) + "</p>");
+            //adjust height and scroll as need be:
+            var $container = $('#messages');
+            var height = $container.get(0).scrollHeight;
+            $container.scrollTop(height);
+          }
+        });
+
+        socket.on("update", function(io_message){
+          if(ready){
+            $('#messages').append("<p class='notification'>" + htmlEntities(io_message) + "</p>")
+          }
+        });
+
+        socket.on("update_people_list", function(people){
+          if(ready){
+            $("#people").empty(); //clear to refresh it
+            $.each(people, function(client_id, name){
+              $('#people').append("<p class='notification'>" + htmlEntities(name) + "</p>");
+            });
+            var $container = $("#messages");
+            var height = $container.get(0).scrollHeight;
+            $container.scrollTop(height);
+          }
+        });
+
+        //PAINT APPLICATION
+        var canvas = document.querySelector('#drawCanvas');
+        var ctx = canvas.getContext('2d');
+         
+        var sketch = document.querySelector('.canvasDiv');
+        var sketch_style = getComputedStyle(sketch);
+        canvas.width = parseInt(sketch_style.getPropertyValue('width'));
+        canvas.height = parseInt(sketch_style.getPropertyValue('height'));
+
+        var mouse = {x: 0, y: 0};
+ 
+        /* Mouse Capturing Work */
+        canvas.addEventListener('mousemove', function(e) {
+          mouse.x = e.pageX - this.offsetLeft;
+          mouse.y = e.pageY - this.offsetTop;
+        }, false);
+
+        /* Drawing on Paint App */
+        ctx.lineWidth = 5;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = 'blue';
+         
+        canvas.addEventListener('mousedown', function(e) {
+            ctx.beginPath();
+            ctx.moveTo(mouse.x, mouse.y);
+         
+            canvas.addEventListener('mousemove', onPaint, false);
+        }, false);
+         
+        canvas.addEventListener('mouseup', function() {
+            canvas.removeEventListener('mousemove', onPaint, false);
+        }, false);
+         
+        var onPaint = function() {
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.stroke();
+        };
+
+      });
+    </script>
+  </body>
+</html>
